@@ -15,14 +15,15 @@ fn cs(s: Vec<u8>) -> *const c_char {
 
 #[no_mangle]
 pub extern "C" fn get(c: *const c_char) -> *const c_char {
+  let eot: Vec<u8> = b"\x04".to_vec();
   panic::set_hook(Box::new(move |_| eprintln!("panic: fkapow.get()")));
   let d = match env::var("KAPOW_DATA_URL") {
     Ok(d) => d,
-    Err(_) => return cs(b"\x04".to_vec()),
+    Err(_) => return cs(eot),
   };
   let i = match env::var("KAPOW_HANDLER_ID") {
     Ok(i) => i,
-    Err(_) => return cs(b"\x04".to_vec()),
+    Err(_) => return cs(eot),
   };
   let cb = unsafe { CStr::from_ptr(c).to_string_lossy().into_owned() };
   let req = format!("{}/handlers/{}{}", d, i, cb);
@@ -33,7 +34,7 @@ pub extern "C" fn get(c: *const c_char) -> *const c_char {
     let mut reader = get.into_reader();
     let _ = reader.read_to_end(&mut bytes);
   } else {
-    bytes = b"\x04".to_vec();
+    bytes = eot;
   }
   return cs(bytes)
 }
