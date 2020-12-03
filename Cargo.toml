@@ -1,0 +1,17 @@
+[lib]
+crate-type =["cdylib"]
+
+[package]
+name = "fastkapow"
+version = "0.1.0"
+authors = ["Eduardo Tongson <propolice@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+ureq = { version = "1.5.2", default-features = false, features = ["tls"] }
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+lto = true
+debug = false
