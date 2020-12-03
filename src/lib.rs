@@ -5,6 +5,9 @@ use std::env;
 use std::panic;
 
 extern crate ureq;
+extern crate serde_json;
+use std::collections::HashMap;
+use serde_json::from_slice;
 
 fn cs(s: Vec<u8>) -> *const c_char {
   let c_str = CString::new(s).unwrap();
@@ -36,5 +39,29 @@ pub extern "C" fn get(c: *const c_char) -> *const c_char {
     bytes = eot;
   }
   return cs(bytes)
+}
+
+#[no_mangle]
+pub extern "C" fn set(c: *const c_char) -> *const c_char {
+  let eot: Vec<u8> = b"\x04".to_vec();
+  let eok: Vec<u8> = b"200" .to_vec();
+  panic::set_hook(Box::new(move |_| eprintln!("panic: fkapow.set()")));
+  let d = match env::var("KAPOW_DATA_URL") {
+    Ok(d) => d,
+    Err(_) => return cs(eot),
+  };
+  let i = match env::var("KAPOW_HANDLER_ID") {
+    Ok(i) => i,
+    Err(_) => return cs(eot),
+  };
+  let cb = unsafe { CStr::from_ptr(c).to_bytes() };
+  let v: HashMap<String, String> = from_slice(cb).unwrap();
+  let req = format!("{}/handlers/{}{}", d, i, v["resource"]);
+  let put = ureq::put(&req).send_string(&v["data"]);
+  if put.status().to_string() == "200" {
+    return cs(eok);
+  } else {
+    return cs(eot);
+  }
 }
 
