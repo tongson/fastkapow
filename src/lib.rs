@@ -28,7 +28,6 @@ pub extern "C" fn get(c: *const c_char) -> *const c_char {
   let cb = unsafe { CStr::from_ptr(c).to_string_lossy().into_owned() };
   let req = format!("{}/handlers/{}{}", d, i, cb);
   let get = ureq::get(&req).call();
-  // Process response
   let mut bytes = vec![];
   if get.status().to_string() == "200" {
     let mut reader = get.into_reader();
