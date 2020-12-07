@@ -6,6 +6,7 @@ use std::panic;
 
 extern crate ureq;
 extern crate serde_json;
+extern crate base64;
 use std::collections::HashMap;
 use serde_json::from_slice;
 
@@ -17,7 +18,7 @@ fn cs(s: Vec<u8>) -> *const c_char {
 }
 
 #[no_mangle]
-pub extern "C" fn get(c: *const c_char) -> *const c_char {
+pub extern "C" fn qget(c: *const c_char) -> *const c_char {
   let eot: Vec<u8> = b"\x04".to_vec();
   panic::set_hook(Box::new(move |_| eprintln!("panic: fkapow.get()")));
   let d = match env::var("KAPOW_DATA_URL") {
@@ -39,6 +40,30 @@ pub extern "C" fn get(c: *const c_char) -> *const c_char {
     bytes = eot;
   }
   return cs(bytes)
+}
+
+#[no_mangle]
+pub extern "C" fn get(c: *const c_char) -> *const c_char {
+  let r: Vec<u8> = b"\x04".to_vec();
+  panic::set_hook(Box::new(move |_| eprintln!("panic: fkapow.get()")));
+  let d = match env::var("KAPOW_DATA_URL") {
+    Ok(d) => d,
+    Err(_) => return cs(r),
+  };
+  let i = match env::var("KAPOW_HANDLER_ID") {
+    Ok(i) => i,
+    Err(_) => return cs(r),
+  };
+  let cb = unsafe { CStr::from_ptr(c).to_string_lossy().into_owned() };
+  let req = format!("{}/handlers/{}{}", d, i, cb);
+  let get = ureq::get(&req).call();
+  let mut strings = vec![];
+  if get.status().to_string() == "200" {
+    let mut reader = get.into_reader();
+    let _ = reader.read_to_end(&mut strings);
+    return cs(base64::encode(strings).as_bytes().to_vec());
+  }
+  return cs(r)
 }
 
 #[no_mangle]
