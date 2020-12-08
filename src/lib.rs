@@ -18,7 +18,7 @@ fn cs(s: Vec<u8>) -> *const c_char {
 }
 
 #[no_mangle]
-pub extern "C" fn qget(c: *const c_char) -> *const c_char {
+pub extern "C" fn get(c: *const c_char) -> *const c_char {
   let eot: Vec<u8> = b"\x04".to_vec();
   panic::set_hook(Box::new(move |_| eprintln!("panic: fkapow.get()")));
   let d = match env::var("KAPOW_DATA_URL") {
@@ -43,7 +43,7 @@ pub extern "C" fn qget(c: *const c_char) -> *const c_char {
 }
 
 #[no_mangle]
-pub extern "C" fn get(c: *const c_char) -> *const c_char {
+pub extern "C" fn b64_get(c: *const c_char) -> *const c_char {
   let r: Vec<u8> = b"\x04".to_vec();
   panic::set_hook(Box::new(move |_| eprintln!("panic: fkapow.get()")));
   let d = match env::var("KAPOW_DATA_URL") {
