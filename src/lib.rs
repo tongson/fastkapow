@@ -20,7 +20,7 @@ fn cs(s: Vec<u8>) -> *const c_char {
 #[no_mangle]
 pub extern "C" fn get(c: *const c_char) -> *const c_char {
   let nak: Vec<u8> = vec!(21);
-  panic::set_hook(Box::new(move |_| eprintln!("panic: fkapow.get()")));
+  panic::set_hook(Box::new(move |_| eprintln!("panic: fastkapow.get()")));
   let d = match env::var("KAPOW_DATA_URL") {
     Ok(d) => d,
     Err(_) => return cs(nak),
@@ -45,7 +45,7 @@ pub extern "C" fn get(c: *const c_char) -> *const c_char {
 #[no_mangle]
 pub extern "C" fn b64_get(c: *const c_char) -> *const c_char {
   let nak: Vec<u8> = vec!(21);
-  panic::set_hook(Box::new(move |_| eprintln!("panic: fkapow.get()")));
+  panic::set_hook(Box::new(move |_| eprintln!("panic: fastkapow.get()")));
   let d = match env::var("KAPOW_DATA_URL") {
     Ok(d) => d,
     Err(_) => return cs(nak),
@@ -70,7 +70,7 @@ pub extern "C" fn b64_get(c: *const c_char) -> *const c_char {
 pub extern "C" fn set(c: *const c_char) -> *const c_char {
   let ack: Vec<u8> = vec!(6);
   let nak: Vec<u8> = vec!(21);
-  panic::set_hook(Box::new(move |_| eprintln!("panic: fkapow.set()")));
+  panic::set_hook(Box::new(move |_| eprintln!("panic: fastkapow.set()")));
   let d = match env::var("KAPOW_DATA_URL") {
     Ok(d) => d,
     Err(_) => return cs(nak),
