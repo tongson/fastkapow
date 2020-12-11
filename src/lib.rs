@@ -19,17 +19,15 @@ fn cs(s: Vec<u8>) -> *const c_char {
 
 #[no_mangle]
 pub extern "C" fn get(c: *const c_char) -> *const c_char {
-  let dc2: Vec<u8> = vec!(18);
-  let dc4: Vec<u8> = vec!(20);
   let nak: Vec<u8> = vec!(21);
   panic::set_hook(Box::new(move |_| eprintln!("panic: fkapow.get()")));
   let d = match env::var("KAPOW_DATA_URL") {
     Ok(d) => d,
-    Err(_) => return cs(dc2),
+    Err(_) => return cs(nak),
   };
   let i = match env::var("KAPOW_HANDLER_ID") {
     Ok(i) => i,
-    Err(_) => return cs(dc4),
+    Err(_) => return cs(nak),
   };
   let cb = unsafe { CStr::from_ptr(c).to_string_lossy().into_owned() };
   let req = format!("{}/handlers/{}{}", d, i, cb);
@@ -46,17 +44,15 @@ pub extern "C" fn get(c: *const c_char) -> *const c_char {
 
 #[no_mangle]
 pub extern "C" fn b64_get(c: *const c_char) -> *const c_char {
-  let dc2: Vec<u8> = vec!(18);
-  let dc4: Vec<u8> = vec!(20);
   let nak: Vec<u8> = vec!(21);
   panic::set_hook(Box::new(move |_| eprintln!("panic: fkapow.get()")));
   let d = match env::var("KAPOW_DATA_URL") {
     Ok(d) => d,
-    Err(_) => return cs(dc2),
+    Err(_) => return cs(nak),
   };
   let i = match env::var("KAPOW_HANDLER_ID") {
     Ok(i) => i,
-    Err(_) => return cs(dc4),
+    Err(_) => return cs(nak),
   };
   let cb = unsafe { CStr::from_ptr(c).to_string_lossy().into_owned() };
   let req = format!("{}/handlers/{}{}", d, i, cb);
@@ -73,17 +69,15 @@ pub extern "C" fn b64_get(c: *const c_char) -> *const c_char {
 #[no_mangle]
 pub extern "C" fn set(c: *const c_char) -> *const c_char {
   let ack: Vec<u8> = vec!(6);
-  let dc2: Vec<u8> = vec!(18);
-  let dc4: Vec<u8> = vec!(20);
   let nak: Vec<u8> = vec!(21);
   panic::set_hook(Box::new(move |_| eprintln!("panic: fkapow.set()")));
   let d = match env::var("KAPOW_DATA_URL") {
     Ok(d) => d,
-    Err(_) => return cs(dc2),
+    Err(_) => return cs(nak),
   };
   let i = match env::var("KAPOW_HANDLER_ID") {
     Ok(i) => i,
-    Err(_) => return cs(dc4),
+    Err(_) => return cs(nak),
   };
   let cb = unsafe { CStr::from_ptr(c).to_bytes() };
   let v: HashMap<String, String> = from_slice(cb).unwrap();
