@@ -19,15 +19,17 @@ fn cs(s: Vec<u8>) -> *const c_char {
 
 #[no_mangle]
 pub extern "C" fn get(c: *const c_char) -> *const c_char {
-  let eot: Vec<u8> = b"\x21".to_vec();
+  let dc2: Vec<u8> = vec!(18);
+  let dc4: Vec<u8> = vec!(20);
+  let nak: Vec<u8> = vec!(21);
   panic::set_hook(Box::new(move |_| eprintln!("panic: fkapow.get()")));
   let d = match env::var("KAPOW_DATA_URL") {
     Ok(d) => d,
-    Err(_) => return cs(eot),
+    Err(_) => return cs(dc2),
   };
   let i = match env::var("KAPOW_HANDLER_ID") {
     Ok(i) => i,
-    Err(_) => return cs(eot),
+    Err(_) => return cs(dc4),
   };
   let cb = unsafe { CStr::from_ptr(c).to_string_lossy().into_owned() };
   let req = format!("{}/handlers/{}{}", d, i, cb);
@@ -37,22 +39,24 @@ pub extern "C" fn get(c: *const c_char) -> *const c_char {
     let mut reader = get.into_reader();
     let _ = reader.read_to_end(&mut bytes);
   } else {
-    bytes = eot;
+    bytes = nak;
   }
   return cs(bytes)
 }
 
 #[no_mangle]
 pub extern "C" fn b64_get(c: *const c_char) -> *const c_char {
-  let r: Vec<u8> = b"\x21".to_vec();
+  let dc2: Vec<u8> = vec!(18);
+  let dc4: Vec<u8> = vec!(20);
+  let nak: Vec<u8> = vec!(21);
   panic::set_hook(Box::new(move |_| eprintln!("panic: fkapow.get()")));
   let d = match env::var("KAPOW_DATA_URL") {
     Ok(d) => d,
-    Err(_) => return cs(r),
+    Err(_) => return cs(dc2),
   };
   let i = match env::var("KAPOW_HANDLER_ID") {
     Ok(i) => i,
-    Err(_) => return cs(r),
+    Err(_) => return cs(dc4),
   };
   let cb = unsafe { CStr::from_ptr(c).to_string_lossy().into_owned() };
   let req = format!("{}/handlers/{}{}", d, i, cb);
@@ -63,30 +67,32 @@ pub extern "C" fn b64_get(c: *const c_char) -> *const c_char {
     let _ = reader.read_to_end(&mut strings);
     return cs(base64::encode(strings).as_bytes().to_vec());
   }
-  return cs(r)
+  return cs(nak)
 }
 
 #[no_mangle]
 pub extern "C" fn set(c: *const c_char) -> *const c_char {
-  let eot: Vec<u8> = b"\x21".to_vec();
-  let eok: Vec<u8> = b"200" .to_vec();
+  let ack: Vec<u8> = vec!(6);
+  let dc2: Vec<u8> = vec!(18);
+  let dc4: Vec<u8> = vec!(20);
+  let nak: Vec<u8> = vec!(21);
   panic::set_hook(Box::new(move |_| eprintln!("panic: fkapow.set()")));
   let d = match env::var("KAPOW_DATA_URL") {
     Ok(d) => d,
-    Err(_) => return cs(eot),
+    Err(_) => return cs(dc2),
   };
   let i = match env::var("KAPOW_HANDLER_ID") {
     Ok(i) => i,
-    Err(_) => return cs(eot),
+    Err(_) => return cs(dc4),
   };
   let cb = unsafe { CStr::from_ptr(c).to_bytes() };
   let v: HashMap<String, String> = from_slice(cb).unwrap();
   let req = format!("{}/handlers/{}{}", d, i, v["resource"]);
   let put = ureq::put(&req).send_string(&v["data"]);
   if put.status().to_string() == "200" {
-    return cs(eok);
+    return cs(ack);
   } else {
-    return cs(eot);
+    return cs(nak);
   }
 }
 
