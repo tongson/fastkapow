@@ -1,25 +1,25 @@
-use std::ffi::{CStr, CString};
-use std::os::raw::c_char;
-use std::io::Read;
 use std::env;
+use std::ffi::{CStr, CString};
+use std::io::Read;
+use std::os::raw::c_char;
 use std::panic;
 
-extern crate ureq;
-extern crate serde_json;
 extern crate base64;
-use std::collections::HashMap;
+extern crate serde_json;
+extern crate ureq;
 use serde_json::from_slice;
+use std::collections::HashMap;
 
 fn cs(s: Vec<u8>) -> *const c_char {
   let c_str = CString::new(s).unwrap();
   let ptr = c_str.as_ptr();
   std::mem::forget(c_str);
-  return ptr
+  return ptr;
 }
 
 #[no_mangle]
 pub extern "C" fn get(c: *const c_char) -> *const c_char {
-  let nak: Vec<u8> = vec!(21);
+  let nak: Vec<u8> = vec![21];
   panic::set_hook(Box::new(move |_| eprintln!("panic: fastkapow.get()")));
   let d = match env::var("KAPOW_DATA_URL") {
     Ok(d) => d,
@@ -39,12 +39,12 @@ pub extern "C" fn get(c: *const c_char) -> *const c_char {
   } else {
     bytes = nak;
   }
-  return cs(bytes)
+  return cs(bytes);
 }
 
 #[no_mangle]
 pub extern "C" fn b64_get(c: *const c_char) -> *const c_char {
-  let nak: Vec<u8> = vec!(21);
+  let nak: Vec<u8> = vec![21];
   panic::set_hook(Box::new(move |_| eprintln!("panic: fastkapow.get()")));
   let d = match env::var("KAPOW_DATA_URL") {
     Ok(d) => d,
@@ -63,13 +63,13 @@ pub extern "C" fn b64_get(c: *const c_char) -> *const c_char {
     let _ = reader.read_to_end(&mut strings);
     return cs(base64::encode(strings).as_bytes().to_vec());
   }
-  return cs(nak)
+  return cs(nak);
 }
 
 #[no_mangle]
 pub extern "C" fn set(c: *const c_char) -> *const c_char {
-  let ack: Vec<u8> = vec!(6);
-  let nak: Vec<u8> = vec!(21);
+  let ack: Vec<u8> = vec![6];
+  let nak: Vec<u8> = vec![21];
   panic::set_hook(Box::new(move |_| eprintln!("panic: fastkapow.set()")));
   let d = match env::var("KAPOW_DATA_URL") {
     Ok(d) => d,
@@ -89,4 +89,3 @@ pub extern "C" fn set(c: *const c_char) -> *const c_char {
     return cs(nak);
   }
 }
-
