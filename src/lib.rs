@@ -33,7 +33,7 @@ pub extern "C" fn get(c: *const c_char) -> *const c_char {
   let req = format!("{}/handlers/{}{}", d, i, cb);
   let get = ureq::get(&req).call();
   let mut bytes = vec![];
-  if get.status().to_string() == "200" {
+  if get.ok() {
     let mut reader = get.into_reader();
     let _ = reader.read_to_end(&mut bytes);
   } else {
@@ -58,7 +58,7 @@ pub extern "C" fn b64_get(c: *const c_char) -> *const c_char {
   let req = format!("{}/handlers/{}{}", d, i, cb);
   let get = ureq::get(&req).call();
   let mut strings = vec![];
-  if get.status().to_string() == "200" {
+  if get.ok() {
     let mut reader = get.into_reader();
     let _ = reader.read_to_end(&mut strings);
     return cs(base64::encode(strings).as_bytes().to_vec());
@@ -83,7 +83,7 @@ pub extern "C" fn set(c: *const c_char) -> *const c_char {
   let v: HashMap<String, String> = from_slice(cb).unwrap();
   let req = format!("{}/handlers/{}{}", d, i, v["resource"]);
   let put = ureq::put(&req).send_string(&v["data"]);
-  if put.status().to_string() == "200" {
+  if put.ok() {
     return cs(ack);
   } else {
     return cs(nak);
